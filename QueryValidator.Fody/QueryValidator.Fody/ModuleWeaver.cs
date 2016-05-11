@@ -1,14 +1,23 @@
-﻿using Mono.Cecil;
+﻿using System.Xml.Linq;
+using Mono.Cecil;
 
 namespace QueryValidator.Fody
 {
     public class ModuleWeaver
     {
+        private const string ConnectionStringName = "DefaultConnection";
+
         public ModuleDefinition ModuleDefinition { get; set; }
+
+        public XElement Config { get; set; }
 
         public void Execute()
         {
-            //ModuleDefinition.Types.Add(new TypeDefinition("MyNamespace", "MyType", TypeAttributes.Public, ModuleDefinition.Import(typeof(object))));
+            var connectionStringName = ConnectionStringName;
+            var attr = Config.Attribute("ConnectionStringName");
+            if (attr != null)
+                connectionStringName = attr.Value;
+
         }
     }
 }

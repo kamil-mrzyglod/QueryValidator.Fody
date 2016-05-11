@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryValidator.Fody", "Quer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryValidator.Fody.Test", "QueryValidator.Fody.Test\QueryValidator.Fody.Test.csproj", "{93129A10-4697-4334-ACA1-0D63DC642EBE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryValidator.Fody.TestAssembly", "QueryValidator.Fody.TestAssembly\QueryValidator.Fody.TestAssembly.csproj", "{20EB5A82-E27F-4F32-A305-F689EBEB7BC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{93129A10-4697-4334-ACA1-0D63DC642EBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93129A10-4697-4334-ACA1-0D63DC642EBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93129A10-4697-4334-ACA1-0D63DC642EBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20EB5A82-E27F-4F32-A305-F689EBEB7BC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20EB5A82-E27F-4F32-A305-F689EBEB7BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20EB5A82-E27F-4F32-A305-F689EBEB7BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20EB5A82-E27F-4F32-A305-F689EBEB7BC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
