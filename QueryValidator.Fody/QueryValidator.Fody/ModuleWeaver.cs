@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Mono.Cecil;
@@ -18,6 +19,8 @@ namespace QueryValidator.Fody
         public XElement Config { get; set; }
 
         public Action<string> LogError { get; set; }
+
+        public string SolutionDirectoryPath { get; set; }
 
         public ModuleWeaver()
         {
@@ -90,7 +93,30 @@ namespace QueryValidator.Fody
         private string GetConnectionStringFromConfig(string connectionStringName)
         {
             var connectionStrings = ConfigurationManager.OpenExeConfiguration(ModuleDefinition.FullyQualifiedName).ConnectionStrings;
-            return connectionStrings.ConnectionStrings[connectionStringName].ConnectionString;
+            var exeConnectionString = connectionStrings.ConnectionStrings[connectionStringName];
+            if (exeConnectionString != null)
+            {
+                return exeConnectionString.ConnectionString;
+            }
+
+            var dllDirParent = Directory.GetParent(ModuleDefinition.FullyQualifiedName).Parent;
+            if (dllDirParent == null)
+            {
+                LogError("Cannot find configuration file");
+                return null;
+            }
+
+            var filePath = string.Empty;
+            if (dllDirParent.GetFiles("web.config").Any())
+                filePath = dllDirParent.FullName + @"\web.config";
+
+            if(dllDirParent.Parent != null && dllDirParent.Parent.GetFiles("web.config").Any())
+                filePath = dllDirParent.Parent.FullName + @"\web.config";
+
+            var map = new ExeConfigurationFileMap { ExeConfigFilename = filePath };
+            return
+                ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None)
+                    .ConnectionStrings.ConnectionStrings[connectionStringName].ConnectionString;
         }
     }
 }

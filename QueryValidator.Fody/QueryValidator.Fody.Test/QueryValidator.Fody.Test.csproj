@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryValidatorTest.cs" />
+    <Compile Include="QueryValidatorWebTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
