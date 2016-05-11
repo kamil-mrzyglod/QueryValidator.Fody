@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -94,7 +95,9 @@ namespace QueryValidator.Fody
 
                 if (query.StartsWith("|>"))
                 {
-                    var cleanedQuery = query.Replace("|>", string.Empty);
+                    var cleanedQuery = Regex.Replace(query.Replace("|>", string.Empty), "@[a-zA-Z]{0,}", "''");
+
+                    LogInfo(string.Format("Cleaned query is {0}", cleanedQuery));
                     instruction.Operand = cleanedQuery;
                     yield return cleanedQuery;
                 }
