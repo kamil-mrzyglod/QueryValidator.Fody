@@ -23,8 +23,6 @@ namespace QueryValidator.Fody
 
         public Action<string> LogInfo { get; set; }
 
-        public string SolutionDirectoryPath { get; set; }
-
         public ModuleWeaver()
         {
             LogError = s => { };
@@ -106,6 +104,8 @@ namespace QueryValidator.Fody
 
         private string GetConnectionStringFromConfig(string connectionStringName)
         {
+            LogInfo(string.Format("Trying to get configuration for {0}", ModuleDefinition.FullyQualifiedName));
+
             var connectionStrings = ConfigurationManager.OpenExeConfiguration(ModuleDefinition.FullyQualifiedName).ConnectionStrings;
             var exeConnectionString = connectionStrings.ConnectionStrings[connectionStringName];
             if (exeConnectionString != null)
@@ -113,19 +113,11 @@ namespace QueryValidator.Fody
                 return exeConnectionString.ConnectionString;
             }
 
-            var dllDirParent = Directory.GetParent(ModuleDefinition.FullyQualifiedName).Parent;
-            if (dllDirParent == null)
-            {
-                LogError("Cannot find configuration file");
-                return null;
-            }
+            string filePath;
+            if(TryToFindConfigurationFile(out filePath) == false)
+                throw new ArgumentException("Cannot find configuration file.");
 
-            var filePath = string.Empty;
-            if (dllDirParent.GetFiles("web.config").Any())
-                filePath = dllDirParent.FullName + @"\web.config";
-
-            if(dllDirParent.Parent != null && dllDirParent.Parent.GetFiles("web.config").Any())
-                filePath = dllDirParent.Parent.FullName + @"\web.config";
+            LogInfo(string.Format("Found configuration file {0}", filePath));
 
             var map = new ExeConfigurationFileMap { ExeConfigFilename = filePath };
             var connectionStringSettings = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None)
@@ -136,6 +128,44 @@ namespace QueryValidator.Fody
 
             return
                 connectionStringSettings.ConnectionString;
+        }
+
+        private bool TryToFindConfigurationFile(out string filePath)
+        {
+            var dllDirParent = Directory.GetParent(ModuleDefinition.FullyQualifiedName).Parent;
+            if (dllDirParent == null)
+            {
+                LogError("Cannot find configuration file");
+                filePath = null;
+                return false;
+            }
+
+            filePath = string.Empty;
+            if (dllDirParent.GetFiles("web.config").Any())
+            {
+                filePath = dllDirParent.FullName + @"\web.config";
+                return true;
+            }
+
+            if (dllDirParent.GetFiles("app.config").Any())
+            {
+                filePath = dllDirParent.FullName + @"\app.config";
+                return true;
+            }
+
+            if (dllDirParent.Parent != null && dllDirParent.Parent.GetFiles("web.config").Any())
+            {
+                filePath = dllDirParent.Parent.FullName + @"\web.config";
+                return true;
+            }
+
+            if (dllDirParent.Parent != null && dllDirParent.Parent.GetFiles("app.config").Any())
+            {
+                filePath = dllDirParent.Parent.FullName + @"\app.config";
+                return true;
+            }
+
+            return false;
         }
     }
 }
