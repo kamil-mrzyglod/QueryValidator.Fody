@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 using Mono.Cecil;
@@ -43,9 +44,19 @@ namespace QueryValidator.Fody.Test
         }
 
         [Test]
-        public void Test()
+        public void GivedWeavedAssembly_ShouldContainNoQuery_WithValidationSign()
         {
-            Assert.Pass();
+            var notCleanedQueries =
+                _weaver.ModuleDefinition.Types.Where(
+                    _ =>
+                        _.Methods.Any(
+                            m =>
+                                m.Body.Instructions.Any(
+                                    i =>
+                                        i.Operand != null && (i.Operand as string) != null &&
+                                        (i.Operand as string).StartsWith("|>"))));
+
+            Assert.That(notCleanedQueries, Is.Empty);
         }
     }
 }
