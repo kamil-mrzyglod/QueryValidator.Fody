@@ -9,7 +9,7 @@ namespace QueryValidator.Fody.Test
 {
     public class QueryValidatorTest
     {
-        private const string AssemblyPath = @"../../../../QueryValidator.Fody.TestAssembly/bin/Debug/QueryValidator.Fody.TestAssembly.dll";
+        private const string AssemblyPath = @"../../../../QueryValidator.Fody.TestAssembly/bin/Debug/QueryValidator.Fody.TestAssembly.exe";
 
         private string _weavedAssemblyName;
 
@@ -18,7 +18,7 @@ namespace QueryValidator.Fody.Test
         [SetUp]
         public void SetUp()
         {
-            _weavedAssemblyName = AssemblyDirectory + $"QueryValidator.Fody.TestAssembly{DateTime.Now.Ticks}.dll";
+            _weavedAssemblyName = AssemblyDirectory + $"QueryValidator.Fody.TestAssembly{DateTime.Now.Ticks}.exe";
 
             var md = ModuleDefinition.ReadModule(Path.GetFullPath(AssemblyDirectory + AssemblyPath));
             var xe = new XElement(
@@ -40,6 +40,12 @@ namespace QueryValidator.Fody.Test
                 var path = Uri.UnescapeDataString(uri.Path);
                 return Path.GetDirectoryName(path);
             }
+        }
+
+        [Test]
+        public void Test()
+        {
+            Assert.Pass();
         }
     }
 }

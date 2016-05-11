@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Configuration;
+using System.Xml.Linq;
 using Mono.Cecil;
 
 namespace QueryValidator.Fody
@@ -18,6 +19,13 @@ namespace QueryValidator.Fody
             if (attr != null)
                 connectionStringName = attr.Value;
 
+            var connectionString = GetConnectionStringFromConfig(connectionStringName);
+        }
+
+        private string GetConnectionStringFromConfig(string connectionStringName)
+        {
+            var connectionStrings = ConfigurationManager.OpenExeConfiguration(ModuleDefinition.FullyQualifiedName).ConnectionStrings;
+            return connectionStrings.ConnectionStrings[connectionStringName].ConnectionString;
         }
     }
 }
