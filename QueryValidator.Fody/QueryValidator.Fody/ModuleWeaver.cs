@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Xml.Linq;
 using Mono.Cecil;
@@ -15,6 +17,13 @@ namespace QueryValidator.Fody
 
         public XElement Config { get; set; }
 
+        public Action<string> LogError { get; set; }
+
+        public ModuleWeaver()
+        {
+            LogError = s => { };
+        }
+
         public void Execute()
         {
             var connectionStringName = ConnectionStringName;
@@ -23,8 +32,34 @@ namespace QueryValidator.Fody
                 connectionStringName = attr.Value;
 
             var queries = GetQueriesToValidate();
-
             var connectionString = GetConnectionStringFromConfig(connectionStringName);
+
+            ValidateQueries(connectionString, queries);
+        }
+
+        private void ValidateQueries(string connectionString, IEnumerable<string> queries)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                foreach (var query in queries)
+                {
+                    using (var command = new SqlCommand())
+                    {
+                        try
+                        {
+                            command.Connection = connection;
+                            command.CommandText = string.Format("SET NOEXEC ON;{0}", query);
+                            command.ExecuteNonQuery();
+                        }
+                        catch (SqlException ex)
+                        {
+                            LogError(ex.Message);
+                        }
+                    }
+                }
+            }
         }
 
         private IEnumerable<string> GetQueriesToValidate()
