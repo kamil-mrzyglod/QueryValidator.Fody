@@ -68,7 +68,7 @@ namespace QueryValidator.Fody
         private IEnumerable<string> GetQueriesToValidate()
         {
             var validTypes =
-                ModuleDefinition.Types.Where(_ => _.Methods.Any(m => m.Body.Instructions.Any(i => i.OpCode == OpCodes.Ldstr)));
+                ModuleDefinition.Types.Where(_ => _.Methods.Any(m => m.HasBody && m.Body.Instructions.Any(i => i.OpCode == OpCodes.Ldstr)));
             foreach (var methods in validTypes.Select(_ => _.Methods))
             {
                 foreach (var method in methods)
