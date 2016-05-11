@@ -12,8 +12,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B46FF4C9-185A-4C3D-9C13-3A0DAB58EF81}"
 	ProjectSection(SolutionItems) = preProject
 		Fody_ToBeDeleted.txt = Fody_ToBeDeleted.txt
-		install.ps = install.ps
-		uninstall.ps = uninstall.ps
+		install.ps1 = install.ps1
+		uninstall.ps1 = uninstall.ps1
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryValidator.Fody.TestWeb", "QueryValidator.Fody.TestWeb\QueryValidator.Fody.TestWeb.csproj", "{5415220C-598E-4A8F-BD63-C91A52793131}"

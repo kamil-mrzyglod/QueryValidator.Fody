@@ -114,9 +114,14 @@ namespace QueryValidator.Fody
                 filePath = dllDirParent.Parent.FullName + @"\web.config";
 
             var map = new ExeConfigurationFileMap { ExeConfigFilename = filePath };
+            var connectionStringSettings = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None)
+                .ConnectionStrings.ConnectionStrings[connectionStringName];
+
+            if(connectionStringSettings == null)
+                throw new ArgumentNullException("connectionStringName", "Cannot find specified connection string");
+
             return
-                ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None)
-                    .ConnectionStrings.ConnectionStrings[connectionStringName].ConnectionString;
+                connectionStringSettings.ConnectionString;
         }
     }
 }
