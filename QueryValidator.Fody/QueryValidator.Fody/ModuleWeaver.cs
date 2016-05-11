@@ -20,11 +20,14 @@ namespace QueryValidator.Fody
 
         public Action<string> LogError { get; set; }
 
+        public Action<string> LogInfo { get; set; }
+
         public string SolutionDirectoryPath { get; set; }
 
         public ModuleWeaver()
         {
             LogError = s => { };
+            LogInfo = s => { };
         }
 
         public void Execute()
@@ -35,9 +38,19 @@ namespace QueryValidator.Fody
                 connectionStringName = attr.Value;
 
             var queries = GetQueriesToValidate();
-            var connectionString = GetConnectionStringFromConfig(connectionStringName);
+            if (queries == null)
+            {
+                LogInfo("No query to validate.");
+                return;
+            }
 
-            ValidateQueries(connectionString, queries);
+            var enumerable = queries as IList<string> ?? queries.ToList();
+            LogInfo(string.Format("Found {0} queries to validate.", enumerable.Count()));
+
+            var connectionString = GetConnectionStringFromConfig(connectionStringName);
+            LogInfo(string.Format("Connection string is {0}", connectionString));
+
+            ValidateQueries(connectionString, enumerable);
         }
 
         private void ValidateQueries(string connectionString, IEnumerable<string> queries)
@@ -48,6 +61,7 @@ namespace QueryValidator.Fody
 
                 foreach (var query in queries)
                 {
+                    LogInfo(string.Format("Validating query {0}", query));
                     using (var command = new SqlCommand())
                     {
                         try
@@ -67,25 +81,22 @@ namespace QueryValidator.Fody
 
         private IEnumerable<string> GetQueriesToValidate()
         {
-            var validTypes =
-                ModuleDefinition.Types.Where(_ => _.Methods.Any(m => m.HasBody && m.Body.Instructions.Any(i => i.OpCode == OpCodes.Ldstr)));
-            foreach (var methods in validTypes.Select(_ => _.Methods))
-            {
-                foreach (var method in methods)
-                {
-                    foreach (var instruction in method.Body.Instructions)
-                    {
-                        var query = instruction.Operand as string;
-                        if(query == null)
-                            continue;
+            var instructions =
+                ModuleDefinition.Types.SelectMany(_ => _.Methods.Where(m => m.HasBody).Select(m => m.Body))
+                    .Where(_ => _.Instructions != null && _.Instructions.Any(i => i.OpCode == OpCodes.Ldstr))
+                    .SelectMany(_ => _.Instructions);
 
-                        if (query.StartsWith("|>"))
-                        {
-                            var cleanedQuery = query.Replace("|>", string.Empty);
-                            instruction.Operand = cleanedQuery;
-                            yield return cleanedQuery;
-                        }                            
-                    }
+            foreach (var instruction in instructions)
+            {
+                var query = instruction.Operand as string;
+                if (query == null)
+                    continue;
+
+                if (query.StartsWith("|>"))
+                {
+                    var cleanedQuery = query.Replace("|>", string.Empty);
+                    instruction.Operand = cleanedQuery;
+                    yield return cleanedQuery;
                 }
             }
         }
