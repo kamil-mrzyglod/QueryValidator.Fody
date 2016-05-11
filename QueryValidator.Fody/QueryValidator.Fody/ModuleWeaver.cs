@@ -50,7 +50,7 @@ namespace QueryValidator.Fody
                         try
                         {
                             command.Connection = connection;
-                            command.CommandText = string.Format("SET NOEXEC ON;{0}", query);
+                            command.CommandText = string.Format("SET FMTONLY ON;{0}", query);
                             command.ExecuteNonQuery();
                         }
                         catch (SqlException ex)
@@ -77,7 +77,11 @@ namespace QueryValidator.Fody
                             continue;
 
                         if (query.StartsWith("|>"))
-                            yield return query;
+                        {
+                            var cleanedQuery = query.Replace("|>", string.Empty);
+                            instruction.Operand = cleanedQuery;
+                            yield return cleanedQuery;
+                        }                            
                     }
                 }
             }
