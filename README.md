@@ -4,7 +4,9 @@ Writing SQL queries in your code can be really tiresome - there is no syntax hig
 ## How it works?
 QueryValidator scans your assembly for SQL queries, which should be validated. You can tell the weaver to validate given query by appending `|>` to it:
 
-`_connection.Query("|> SELECT * FROM dbo.Foo")`
+```
+_connection.Query("|> SELECT * FROM dbo.Foo")
+```
 
 `|>` will be removed after a build so your query will run just fine if everything's OK. If query validation returns an error, your build will be interrupted and detailed SQL error will be displayed.
 
@@ -18,7 +20,7 @@ Internally QueryValidator appends to your query `SET FMTONLY ON` flag, so it is 
 
 ## Parameters
 
-Let's say you have following query(this example uses Dapper but you can easily imaging passing parameters with ADO.NET):
+Let's say you have following query(this example uses [Dapper](https://github.com/StackExchange/dapper-dot-net) but you can easily imagine passing parameters with ADO.NET):
 
 `_connection.Query("|> SELECT * FROM dbo.Foo WHERE Id = @Id", new { Id = 1 })`
 
