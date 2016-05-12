@@ -113,9 +113,10 @@ namespace QueryValidator.Fody
 
         private string GetConnectionStringFromConfig(string connectionStringName)
         {
-            LogInfo(string.Format("Trying to get configuration for {0}", ModuleDefinition.FullyQualifiedName));
+            var fullyQualifiedNameFromBin = ModuleDefinition.FullyQualifiedName.Replace("obj", "bin");
+            LogInfo(string.Format("Trying to get configuration for {0}", fullyQualifiedNameFromBin));
 
-            var connectionStrings = ConfigurationManager.OpenExeConfiguration(ModuleDefinition.FullyQualifiedName).ConnectionStrings;
+            var connectionStrings = ConfigurationManager.OpenExeConfiguration(fullyQualifiedNameFromBin).ConnectionStrings;
             var exeConnectionString = connectionStrings.ConnectionStrings[connectionStringName];
             if (exeConnectionString != null)
             {
