@@ -102,10 +102,11 @@ namespace QueryValidator.Fody
 
                 if (query.StartsWith("|>"))
                 {
-                    var cleanedQuery = Regex.Replace(query.Replace("|>", string.Empty), "@[a-zA-Z]{0,}", "''");
+                    var queryWithoutValidator = query.Replace("|>", string.Empty);
+                    var cleanedQuery = Regex.Replace(queryWithoutValidator, "@[a-zA-Z]{0,}", "''");
 
                     LogInfo(string.Format("Cleaned query is {0}", cleanedQuery));
-                    instruction.Operand = cleanedQuery;
+                    instruction.Operand = queryWithoutValidator;
                     yield return cleanedQuery;
                 }
             }
