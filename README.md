@@ -1,6 +1,11 @@
 # QueryValidator.Fody
 Writing SQL queries in your code can be really tiresome - there is no syntax highlighting, code completion and other nice-to-have features which e.g. SQL Management Studio has. It is easy to make mistake, it is easy forget about something - the only thing to realize something's wrong, is to run a query. What if MSBuild could do it for you?
 
+## Installation [![NuGet Status](https://img.shields.io/nuget/v/QueryValidator.Fody.svg?style=flat)](https://www.nuget.org/packages/QueryValidator.Fody/)
+QueryValidator.Fody can be installed using NuGet Packages Manager:
+
+```Install-Package QueryValidator.Fody ```
+
 ## How it works?
 QueryValidator scans your assembly for SQL queries, which should be validated. You can tell the weaver to validate given query by appending `|>` to it:
 
