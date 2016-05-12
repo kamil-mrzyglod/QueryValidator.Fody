@@ -113,69 +113,31 @@ namespace QueryValidator.Fody
 
         private string GetConnectionStringFromConfig(string connectionStringName)
         {
-            var fullyQualifiedNameFromBin = ModuleDefinition.FullyQualifiedName.Replace("obj", "bin");
-            LogInfo(string.Format("Trying to get configuration for {0}", fullyQualifiedNameFromBin));
+            LogInfo(string.Format("Trying to get configuration for {0}", ModuleDefinition.FullyQualifiedName));
 
-            var connectionStrings = ConfigurationManager.OpenExeConfiguration(fullyQualifiedNameFromBin).ConnectionStrings;
+            var connectionStrings = ConfigurationManager.OpenExeConfiguration(ModuleDefinition.FullyQualifiedName).ConnectionStrings;
             var exeConnectionString = connectionStrings.ConnectionStrings[connectionStringName];
             if (exeConnectionString != null)
             {
+                LogInfo(string.Format("Found configuration file {0}", ModuleDefinition.FullyQualifiedName));
                 return exeConnectionString.ConnectionString;
             }
 
-            string filePath;
-            if(TryToFindConfigurationFile(out filePath) == false)
-                throw new ArgumentException("Cannot find configuration file.");
+            var fullyQualifiedNameFromObj = Directory.GetFiles(Path.GetDirectoryName(ModuleDefinition.FullyQualifiedName), "*.config").FirstOrDefault();
+            LogInfo(string.Format("Trying to get configuration for {0}", fullyQualifiedNameFromObj));
 
-            LogInfo(string.Format("Found configuration file {0}", filePath));
+            var objConfiguration =
+                ConfigurationManager.OpenMappedExeConfiguration(
+                    new ExeConfigurationFileMap { ExeConfigFilename = fullyQualifiedNameFromObj },
+                    ConfigurationUserLevel.None).ConnectionStrings.ConnectionStrings[connectionStringName];
 
-            var map = new ExeConfigurationFileMap { ExeConfigFilename = filePath };
-            var connectionStringSettings = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None)
-                .ConnectionStrings.ConnectionStrings[connectionStringName];
-
-            if(connectionStringSettings == null)
-                throw new ArgumentNullException("connectionStringName", "Cannot find specified connection string");
-
-            return
-                connectionStringSettings.ConnectionString;
-        }
-
-        private bool TryToFindConfigurationFile(out string filePath)
-        {
-            var dllDirParent = Directory.GetParent(ModuleDefinition.FullyQualifiedName).Parent;
-            if (dllDirParent == null)
+            if (objConfiguration != null)
             {
-                LogError("Cannot find configuration file");
-                filePath = null;
-                return false;
+                LogInfo(string.Format("Found configuration file {0}", fullyQualifiedNameFromObj));
+                return objConfiguration.ConnectionString;
             }
 
-            filePath = string.Empty;
-            if (dllDirParent.GetFiles("web.config").Any())
-            {
-                filePath = dllDirParent.FullName + @"\web.config";
-                return true;
-            }
-
-            if (dllDirParent.GetFiles("app.config").Any())
-            {
-                filePath = dllDirParent.FullName + @"\app.config";
-                return true;
-            }
-
-            if (dllDirParent.Parent != null && dllDirParent.Parent.GetFiles("web.config").Any())
-            {
-                filePath = dllDirParent.Parent.FullName + @"\web.config";
-                return true;
-            }
-
-            if (dllDirParent.Parent != null && dllDirParent.Parent.GetFiles("app.config").Any())
-            {
-                filePath = dllDirParent.Parent.FullName + @"\app.config";
-                return true;
-            }
-
-            return false;
+            throw new ConfigurationErrorsException("Cannot find configuration.");
         }
     }
 }
