@@ -85,6 +85,15 @@ namespace QueryValidator.Fody
                     .Where(_ => _.Instructions != null && _.Instructions.Any(i => i.OpCode == OpCodes.Ldstr))
                     .SelectMany(_ => _.Instructions);
 
+            var instructionsFromNested =
+                ModuleDefinition.Types.SelectMany(_ => _.NestedTypes)
+                    .SelectMany(_ => _.Methods)
+                    .Where(m => m.HasBody)
+                    .Select(m => m.Body)
+                    .Where(_ => _.Instructions != null && _.Instructions.Any(i => i.OpCode == OpCodes.Ldstr))
+                    .SelectMany(_ => _.Instructions);
+
+            instructions = instructions.Concat(instructionsFromNested);
             foreach (var instruction in instructions)
             {
                 var query = instruction.Operand as string;
