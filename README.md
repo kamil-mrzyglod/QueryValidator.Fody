@@ -1,3 +1,5 @@
+<img src="https://raw.github.com/kamil-mrzyglod/QueryValidator.Fody/master/Icons/noun_364878_cc.png" width="100" /> 
+
 # QueryValidator.Fody
 Writing SQL queries in your code can be really tiresome - there is no syntax highlighting, code completion and other nice-to-have features which e.g. SQL Management Studio has. It is easy to make mistake, it is easy forget about something - the only thing to realize something's wrong, is to run a query. What if MSBuild could do it for you?
 
@@ -51,3 +53,6 @@ A solution for this is to create a custom `.targets` file, which will execute tr
 ```
 
 You only need to import above file inside your `.csproj` file.
+
+## Icon
+[database](https://thenounproject.com/term/database/364878/) by Nimal Raj from the Noun Project
