@@ -39,7 +39,7 @@ It is planned to hoist parameters in the future, so they will fake real values.
 
 ## Configuration transformations
 
-If you use QueryValidator with configuration transformators(like SlowCheetah), you can face a problem, when it cannot find a configuration file. This is caused by a fact, that those transformation often happen *after the build* - because Fody starts immediately after compilation(and runs QueryValidator), there is no correct configuration file, which can be used to get a connection string. 
+If you use QueryValidator with configuration transformation tools(like SlowCheetah), you can face a problem, when it cannot find a configuration file. This is caused by a fact, that those transformation often happen *after the build* - because Fody starts immediately after compilation(and runs QueryValidator), there is no correct configuration file, which can be used to get a connection string. 
 
 A solution for this is to create a custom `.targets` file, which will execute transformation task *before* Fody(below example runs `TransformAllFiles` from SlowCheetah):
 
