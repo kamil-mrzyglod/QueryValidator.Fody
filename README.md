@@ -25,6 +25,16 @@ Internally QueryValidator appends to your query `SET FMTONLY ON` flag, so it is 
 </Weavers>
 ```
 
+If you find QueryValidator generating too many logs, you can take advantage of `MuteLogs` property in the configuration:
+
+```
+<Weavers>
+  <QueryValidator ConnectionStringName="MyConnectionString" MuteLogs="1" />
+</Weavers>
+```
+
+It will succesfully disable logging of found/cleaned queries, however it will preserve some diagnostics messages.
+
 ## Parameters
 
 Let's say you have following query(this example uses [Dapper](https://github.com/StackExchange/dapper-dot-net) but you can easily imagine passing parameters with ADO.NET):
