@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Mono.Cecil;
 using NUnit.Framework;
@@ -44,7 +45,7 @@ namespace QueryValidator.Fody.Test
         }
 
         [Test]
-        public void GivedWeavedAssembly_ShouldContainNoQuery_WithValidationSign()
+        public void GivenWeavedAssembly_ShouldContainNoQuery_WithValidationSign()
         {
             var notCleanedQueries =
                 _weaver.ModuleDefinition.Types.Where(
@@ -57,6 +58,15 @@ namespace QueryValidator.Fody.Test
                                         (i.Operand as string).StartsWith("|>"))));
 
             Assert.That(notCleanedQueries, Is.Empty);
+        }
+
+        [Theory]
+        public void GivenInStatementQuery_ShouldClearItCorrectly()
+        {
+            var queryWithParametersIn = "SELECT * FROM dbo.Foo WHERE Id IN @Ids";
+            var cleanedQuery = Regex.Replace(queryWithParametersIn, "IN @[a-zA-Z]{0,}", "IN (1)", RegexOptions.Compiled);
+
+            Assert.That(cleanedQuery, Is.EqualTo("SELECT * FROM dbo.Foo WHERE Id IN (1)"));
         }
     }
 }
