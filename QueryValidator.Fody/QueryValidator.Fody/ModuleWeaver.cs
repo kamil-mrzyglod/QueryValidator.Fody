@@ -15,6 +15,8 @@ namespace QueryValidator.Fody
     {
         private const string ConnectionStringName = "DefaultConnection";
 
+        private bool AreLogsMuted;
+
         public ModuleDefinition ModuleDefinition { get; set; }
 
         public XElement Config { get; set; }
@@ -35,6 +37,8 @@ namespace QueryValidator.Fody
             var attr = Config.Attribute("ConnectionStringName");
             if (attr != null)
                 connectionStringName = attr.Value;
+
+            AreLogsMuted = Config.Attribute("MuteLogs") != null ? Config.Attribute("MuteLogs").Value == "1" : false;
 
             var queries = GetQueriesToValidate();
             if (queries == null)
@@ -60,7 +64,7 @@ namespace QueryValidator.Fody
 
                 foreach (var query in queries)
                 {
-                    LogInfo(string.Format("Validating query {0}", query));
+                    LogMessageConditionally(string.Format("Validating query {0}", query));
                     using (var command = new SqlCommand())
                     {
                         try
@@ -76,6 +80,11 @@ namespace QueryValidator.Fody
                     }
                 }
             }
+        }
+
+        private void LogMessageConditionally(string message)
+        {
+            if (AreLogsMuted == false) LogInfo(message);
         }
 
         private IEnumerable<string> GetQueriesToValidate()
@@ -105,7 +114,7 @@ namespace QueryValidator.Fody
                     var queryWithoutValidator = query.Replace("|>", string.Empty);
                     var cleanedQuery = Regex.Replace(queryWithoutValidator, "@[a-zA-Z]{0,}", "''", RegexOptions.Compiled);
 
-                    LogInfo(string.Format("Cleaned query is {0}", cleanedQuery));
+                    LogMessageConditionally(string.Format("Cleaned query is {0}", cleanedQuery));
                     instruction.Operand = queryWithoutValidator;
                     yield return cleanedQuery;
                 }
