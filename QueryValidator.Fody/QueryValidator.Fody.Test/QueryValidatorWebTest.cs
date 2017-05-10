@@ -24,7 +24,8 @@ namespace QueryValidator.Fody.Test
             var md = ModuleDefinition.ReadModule(Path.GetFullPath(AssemblyDirectory + AssemblyPath));
             var xe = new XElement(
                 "QueryValidator",
-                 new XAttribute("ConnectionStringName", "MyConnectionString"));
+                 new XAttribute("ConnectionStringName", "MyConnectionString"),
+                 new XAttribute("ConfigurationType", "Web"));
 
             _weaver = new ModuleWeaver { ModuleDefinition = md, Config = xe };
 

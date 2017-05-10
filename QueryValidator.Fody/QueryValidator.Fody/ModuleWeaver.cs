@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web.Configuration;
 using System.Xml.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -126,6 +127,17 @@ namespace QueryValidator.Fody
         {
             LogInfo(string.Format("Trying to get configuration for {0}", ModuleDefinition.FullyQualifiedName));
 
+            if (Config.Attribute("ConfigurationType").Value.Equals(ConfigurationType.Web.ToString(), StringComparison.InvariantCultureIgnoreCase))
+            {
+                var webConfig = GetWebConfiguration(Path.Combine(ModuleDefinition.FullyQualifiedName, "../../../web.config"));
+                var webConnectionString = webConfig.ConnectionStrings.ConnectionStrings[connectionStringName];
+                if(webConnectionString == null) throw new ConfigurationErrorsException("Cannot find configuration in" + webConfig.FilePath);
+
+                LogInfo(string.Format("Found configuration file {0}", ModuleDefinition.FullyQualifiedName));
+
+                return webConnectionString.ConnectionString;
+            }
+
             var connectionStrings = ConfigurationManager.OpenExeConfiguration(ModuleDefinition.FullyQualifiedName).ConnectionStrings;
             var exeConnectionString = connectionStrings.ConnectionStrings[connectionStringName];
             if (exeConnectionString != null)
@@ -149,6 +161,15 @@ namespace QueryValidator.Fody
             }
 
             throw new ConfigurationErrorsException("Cannot find configuration.");
+        }
+
+        private static Configuration GetWebConfiguration(string configPath)
+        {
+            var configFile = new FileInfo(configPath);
+            var vdm = new VirtualDirectoryMapping(configFile.DirectoryName, true, configFile.Name);
+            var wcfm = new WebConfigurationFileMap();
+            wcfm.VirtualDirectories.Add("/", vdm);
+            return WebConfigurationManager.OpenMappedWebConfiguration(wcfm, "/");
         }
     }
 }
