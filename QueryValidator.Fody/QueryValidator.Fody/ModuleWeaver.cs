@@ -127,9 +127,9 @@ namespace QueryValidator.Fody
         {
             LogInfo(string.Format("Trying to get configuration for {0}", ModuleDefinition.FullyQualifiedName));
 
-            if (Config.Attribute("ConfigurationType").Value.Equals(ConfigurationType.Web.ToString(), StringComparison.InvariantCultureIgnoreCase))
+            if (Config.Attribute("ConfigurationType") != null && Config.Attribute("ConfigurationType").Value.Equals(ConfigurationType.Web.ToString(), StringComparison.InvariantCultureIgnoreCase))
             {
-                var webConfig = GetWebConfiguration(Path.Combine(ModuleDefinition.FullyQualifiedName, "../../../web.config"));
+                var webConfig = GetWebConfiguration(Path.Combine(ModuleDefinition.FullyQualifiedName, "../../web.config"));
                 var webConnectionString = webConfig.ConnectionStrings.ConnectionStrings[connectionStringName];
                 if(webConnectionString == null) throw new ConfigurationErrorsException("Cannot find configuration in" + webConfig.FilePath);
 
